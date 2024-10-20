@@ -16,18 +16,33 @@
 #define VoorAchterPinD (P8_3)
 #define TRIG_PIN_Sensor1 (P9_1)
 #define ECHO_PIN_Sensor1 (P9_2)
+#define SCL_Pin (P6_0)
+#define SDA_Pin (P6_1)
+
+//Adress
+#define MPU6050_ADDR 0x68
+#define PWR_MGMT_1   0x6B
+#define ACCEL_XOUT_H 0x3B
 
 //Global defines
 #define Frequentie (10u)
 
 //Globals
-cyhal_pwm_t pwm_MotorA;
-cyhal_pwm_t pwm_MotorB;
-cyhal_pwm_t pwm_MotorC;
-cyhal_pwm_t pwm_MotorD;
-cyhal_timer_t timer_obj;
+cyhal_pwm_t		pwm_MotorA;
+cyhal_pwm_t 	pwm_MotorB;
+cyhal_pwm_t 	pwm_MotorC;
+cyhal_pwm_t 	pwm_MotorD;
+cyhal_timer_t 	timer_obj;
+cyhal_i2c_t 	i2c;
 uint8_t Speed = 90;
+int16_t accel_x, accel_y, accel_z;
 bool StoppedRecently = false;
+
+cyhal_i2c_cfg_t i2c_cfg = {
+    .is_slave = false,
+    .address = 0,
+    .frequencyhal_hz = 100000
+};
 
 void InitGPIOPins()
 {
@@ -48,6 +63,12 @@ void InitMotorPins()
     cyhal_pwm_init(&pwm_MotorB, MotorB, NULL);
     cyhal_pwm_init(&pwm_MotorC, MotorC, NULL);
     cyhal_pwm_init(&pwm_MotorD, MotorD, NULL);
+}
+
+void InitI2C()
+{
+    cyhal_i2c_init(&i2c, SDA_Pin, SCL_Pin, NULL);
+    cyhal_i2c_configure(&i2c, &i2c_cfg);
 }
 
 void InitTimer()
